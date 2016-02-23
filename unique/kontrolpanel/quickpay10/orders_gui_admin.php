@@ -10,7 +10,7 @@
 
 if(strstr($order->info['cc_cardhash'],"Subscription")){
 	$subcription = true;
-	$api->mode ="subscriptions/";
+
 
 	
 }
@@ -18,13 +18,14 @@ if ($api->init()) {
 
 
 try {
-
- $statusinfo = $api->status(get_transactionid($oID)); 
-  $ostatus['amount'] = $statusinfo["operations"][0]["amount"];
-  $ostatus['balance'] = $statusinfo["balance"];
-  $ostatus['currency'] = $statusinfo["currency"];
+    $api->mode = (MODULE_PAYMENT_QUICKPAY_ADVANCED_SUBSCRIPTION == "Normal" ? "payments?order_id=" : "subscriptions?order_id=");
+  $statusinfo = $api->status(MODULE_PAYMENT_QUICKPAY_ADVANCED_AGGREEMENTID."_".sprintf('%04d', $_GET["oID"])); 
+// $statusinfo = $api->status(get_transactionid($oID)); 
+  $ostatus['amount'] = $statusinfo[0]["operations"][0]["amount"];
+  $ostatus['balance'] = $statusinfo[0]["balance"];
+  $ostatus['currency'] = $statusinfo[0]["currency"];
   //get the latest operation
-  $operations= array_reverse($statusinfo["operations"]);
+  $operations= array_reverse($statusinfo[0]["operations"]);
   $amount = $operations[0]["amount"];
   $ostatus['qpstat'] = $operations[0]["qp_status_code"];
   $ostatus['type'] = $operations[0]["type"];
@@ -32,13 +33,18 @@ try {
   $resttorefund = $statusinfo["balance"];
   $allowcapture = ($operations[0]["pending"] ? false : true);
   $allowcancel = true;
-  $testmode = $statusinfo["test_mode"];
+  $testmode = $statusinfo[0]["test_mode"];
+  $type = $statusinfo[0]["type"];
+  $id = $statusinfo[0]["id"];
 
-
+  //reset mode
+    $api->mode = (MODULE_PAYMENT_QUICKPAY_ADVANCED_SUBSCRIPTION == "Normal" ? "payments/" : "subscriptions/");
 if(!$ostatus['type']){
 	 //payment is  initial
-	  $totals = array_reverse($order->totals);
-	 $process_parameters["amount"] = filter_var($totals[0]["text"], FILTER_SANITIZE_NUMBER_INT);
+  $totals = array_reverse($order->totals);
+   $tamount = filter_var($totals[0]["text"], FILTER_SANITIZE_NUMBER_INT);
+   echo $tamount;
+  $process_parameters["amount"] = (filter_var($totals[0]["text"], FILTER_SANITIZE_NUMBER_INT));
 	
 
  }else{
@@ -56,7 +62,7 @@ if(!$ostatus['type']){
   $process_parameters["currency"] = $ostatus['currency'];
 
 
- $storder = $api->link($order->info['cc_transactionid'], $process_parameters);
+ $storder = $api->link($id, $process_parameters);
  $plink = $storder["url"];
   //allow split payments and split refunds
   if(($ostatus['type'] == "capture" ) ){
@@ -88,10 +94,10 @@ if(!$ostatus['type']){
     <tr>
         <td class="main" valign="top"><b><?php echo ENTRY_QUICKPAY_TRANSACTION; ?></b></td>
         <td class="main" ><?php
-if ($statusinfo && $api->mode == "subscriptions/" && !$error) {
+if ($statusinfo[0]["id"] && $api->mode == "subscriptions/" && !$error) {
 	echo SUBSCRIPTION_ADMIN;
 }
-    if ($statusinfo && $api->mode == "payments/") {
+    if ($statusinfo[0]["id"] && $api->mode == "payments/") {
         $statustext = array();
         $statustext["capture"] = INFO_QUICKPAY_CAPTURED;
         $statustext["cancel"] = INFO_QUICKPAY_REVERSED;
@@ -226,12 +232,12 @@ if($allowcapture){
     ?> </td>
     <tr>
         <td class="main" valign="top"><b><?php echo ENTRY_QUICKPAY_TRANSACTION_ID; ?></b></td>
-        <td class="main"><?php echo $order->info['cc_transactionid'].($testmode== true ? '<font color="red"> TEST MODE</font>' : ''); ?></b></td>
+        <td class="main"><?php echo $id.($testmode== true ? '<font color="red"> TEST MODE</font>' : ''); ?></b></td>
     </tr>
         
     <tr>
         <td class="main"><b><?php echo "Type"; ?></b></td>
-        <td class="main"><?php echo $statusinfo["type"]." (".$statusinfo["metadata"]["brand"].")"; ?></b></td>
+        <td class="main"><?php echo $statusinfo[0]["type"]." (".$statusinfo[0]["metadata"]["brand"].")"; ?></b></td>
     </tr>
     <?php // if(!$ostatus['type']){?>
        <tr>

@@ -1,6 +1,7 @@
 <?php
  include(DIR_FS_CATALOG.DIR_WS_CLASSES.'QuickpayApi.php');
-
+ //ini_set("display_errors","on");
+//error_reporting(E_ALL);
 /*
   quickpay_advanced.php, v1.1 - 2011-06-17
 
@@ -734,11 +735,13 @@ if($_POST['callquickpay'] == "go") {
        }
 			
 		$storder = $apiorder->link($qid, $process_parameters);	
-		
+		$url = $storder['url'];
+
+
 			$process_button_string .= "<script>
-       //alert('qp ".$qp_order_id."-".$order_id."');
+     
  window.location.replace('".$storder['url']."');
-      </script>";
+  </script>"; 
 
 
 				
