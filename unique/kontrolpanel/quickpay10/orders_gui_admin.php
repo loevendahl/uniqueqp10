@@ -37,30 +37,29 @@ try {
   $type = $statusinfo[0]["type"];
   $id = $statusinfo[0]["id"];
 
+
   //reset mode
     $api->mode = (MODULE_PAYMENT_QUICKPAY_ADVANCED_SUBSCRIPTION == "Normal" ? "payments/" : "subscriptions/");
-if(!$ostatus['type']){
+//if(!$ostatus['type']){
 	 //payment is  initial
-  $totals = array_reverse($order->totals);
-   $tamount = filter_var($totals[0]["text"], FILTER_SANITIZE_NUMBER_INT);
+  //$totals = array_reverse($order->totals);
+  // $tamount = filter_var($totals[0]["text"], FILTER_SANITIZE_NUMBER_INT);
  
-  $process_parameters["amount"] = (filter_var($totals[0]["text"], FILTER_SANITIZE_NUMBER_INT));
+  $process_parameters["amount"] = $statusinfo[0]["link"]["amount"];
 	
 
- }else{
-  $process_parameters["amount"] = $resttocap;
+// }else{
+ // $process_parameters["amount"] = $resttocap;
   
- }	
+//}	
   $process_parameters["callbackurl"] = HTTP_SERVER.DIR_WS_CATALOG."callback10.php?oid=".$oID;
   $process_parameters["continueurl"] = HTTP_SERVER.DIR_WS_CATALOG."checkout_process.php?paymentlink=".$oID;
   $process_parameters["cancelurl"] =   HTTP_SERVER.DIR_WS_CATALOG;
   $process_parameters["reference_title"] = "admin link";
-  $process_parameters["category"] = MODULE_PAYMENT_QUICKPAY_ADVANCED_PAII_CAT;
-  $process_parameters["product_id"] = "PO3";
+  $process_parameters["language"] = $statusinfo[0]["link"]["language"];
   $process_parameters["vat_amount"] = $process_parameters["amount"]*0.25;
   $process_parameters["customer_email"] = $order->customer["email_address"];
   $process_parameters["currency"] = $ostatus['currency'];
-
 
  $storder = $api->link($id, $process_parameters);
  $plink = $storder["url"];

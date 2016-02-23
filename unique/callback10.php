@@ -199,14 +199,30 @@ if($qp_type == "subscription"){
                  EMAIL_TEXT_ORDER_NUMBER . ' ' . $qp_order_id . "\n" .
                  EMAIL_TEXT_INVOICE_URL . ' ' . tep_href_link(FILENAME_ACCOUNT_HISTORY_INFO, 'order_id=' . $qp_order_id, 'SSL', false) . "\n" .
                  EMAIL_TEXT_DATE_ORDERED . ' ' . strftime(DATE_FORMAT_LONG) . "\n\n";
+
+
 				 
- // tep_mail($cb["customers_firstname"] .' '.$cb["customers_lastname"], $str[0]["link"]["customer_email"], EMAIL_TEXT_SUBJECT, $email_order, STORE_OWNER, STORE_OWNER_EMAIL_ADDRESS);
+
+  tep_mail($order->customer['firstname'] . ' ' . $order->customer['lastname'], $order->customer['email_address'], EMAIL_TEXT_SUBJECT, $email_order, STORE_NAME, STORE_EMAIL_ADDRESS);
+
+
 
 // send emails to other people
+
   if (SEND_EXTRA_ORDER_EMAILS_TO != '') {
-    tep_mail('', SEND_EXTRA_ORDER_EMAILS_TO, EMAIL_TEXT_SUBJECT, $email_order, STORE_OWNER, STORE_OWNER_EMAIL_ADDRESS);
+
+	$email_addresses = explode(',', trim(SEND_EXTRA_ORDER_EMAILS_TO));
+
+    foreach ($email_addresses as $copy_to_email){
+
+		tep_mail(STORE_OWNER, $copy_to_email, 'Ny bestilling på ' . STORE_NAME . ', ordrenummer: ' . $insert_id, $email_order, STORE_NAME, STORE_EMAIL_ADDRESS);
+	}
+	
   }
-  
+
+
+	
+	
 	  }
  
 	   }
