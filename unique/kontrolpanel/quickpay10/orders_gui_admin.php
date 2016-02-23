@@ -43,7 +43,7 @@ if(!$ostatus['type']){
 	 //payment is  initial
   $totals = array_reverse($order->totals);
    $tamount = filter_var($totals[0]["text"], FILTER_SANITIZE_NUMBER_INT);
-   echo $tamount;
+ 
   $process_parameters["amount"] = (filter_var($totals[0]["text"], FILTER_SANITIZE_NUMBER_INT));
 	
 
