@@ -57,7 +57,7 @@ try {
   $process_parameters["cancelurl"] =   HTTP_SERVER.DIR_WS_CATALOG;
   $process_parameters["reference_title"] = "admin link";
   $process_parameters["language"] = $statusinfo[0]["link"]["language"];
-  $process_parameters["vat_amount"] = $process_parameters["amount"]*0.25;
+  //$process_parameters["vat_amount"] = $process_parameters["amount"]*0.25;
   $process_parameters["customer_email"] = $order->customer["email_address"];
   $process_parameters["currency"] = $ostatus['currency'];
 
